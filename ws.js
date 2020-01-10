@@ -1,5 +1,6 @@
 const cacheName = 'v2';
 const cachedAssets = [
+'/',
 'index.html',
 'restaurant.html',
 'img/1.jpg',
@@ -14,8 +15,12 @@ const cachedAssets = [
 'img/10.jpg',
 'css/styles.css',
 'ws.js',
-'data/restrurants.json',
-'sw_register.js'];
+'data/restaurants.json',
+'sw_register.js',
+'js/dbhelper.js',
+'js/main.js',
+'js/restaurant_info.js',
+];
 
 self.addEventListener('install', e => {
   console.log('install');
@@ -46,5 +51,16 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   console.log('fetch');
-  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+  e.respondWith(
+    fetch(e.request)
+    .then(res => {
+      console.log(res);
+    const resClone = res.clone();
+    caches.open(cacheName).then(cache => {
+      cache.put(e.request,resClone);
+    });
+    return res;
+  })
+  .catch(err => caches.match(e.request).then(res => res))
+  );
 });
